@@ -36,6 +36,7 @@ public class Game {
             islandTiles.add(tile);
         }
         // 其他初始化操作……
+
     }
 
     public List<IslandTile> getIslandTiles() {

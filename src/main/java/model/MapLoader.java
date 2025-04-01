@@ -33,8 +33,7 @@ public class MapLoader {
         // 打乱图片文件顺序
         Collections.shuffle(fileList);
         List<ImageIcon> mapIcons = new ArrayList<>();
-        int count = Math.min(24, fileList.size());
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < 24; i++) {
             // 构造资源路径，例如：/images/maps/map1.jpg
             String path = "/images/Tiles/" + fileList.get(i);
             System.out.println(path);
