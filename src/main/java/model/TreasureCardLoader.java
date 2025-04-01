@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * TreasureCardLoader 类：宝藏卡片加载器
@@ -31,6 +32,15 @@ public class TreasureCardLoader {
                 fileList.add(file);
             }
         }
+        for (int i = 0; i < 3; i++) {
+            fileList.add("Card_Helicopter.png");
+        }
+        for (int i = 0; i < 2; i++) {
+            fileList.add("Card_Sand_Bag.png");
+        }
+        for (int i = 0; i < 3; i++) {
+            fileList.add("Card_Waters_Rise_disabled@2x.png");
+        }
         // 打乱图片文件顺序
         Collections.shuffle(fileList);
         List<ImageIcon> treasureIcons = new ArrayList<>();
@@ -38,7 +48,7 @@ public class TreasureCardLoader {
         for (String fileName : fileList) {
             // 构造资源路径，例如：/images/TreasureCards/Card_Earth_Stone.png
             String path = "/images/TreasureCards/" + fileName;
-            ImageIcon icon = new ImageIcon(TreasureCardLoader.class.getResource(path));
+            ImageIcon icon = new ImageIcon(Objects.requireNonNull(TreasureCardLoader.class.getResource(path)));
             treasureIcons.add(icon);
         }
         return treasureIcons;
