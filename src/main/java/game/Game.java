@@ -1,4 +1,8 @@
-package main.java.model;
+package main.java.game;
+
+import main.java.model.IslandTile;
+import main.java.model.MapLoader;
+import main.java.model.Player;
 
 import javax.swing.*;
 import java.util.ArrayList;

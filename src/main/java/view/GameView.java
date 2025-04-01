@@ -1,6 +1,6 @@
 package main.java.view;
 
-import main.java.model.Game;
+import main.java.game.Game;
 import main.java.model.IslandTile;
 
 import javax.swing.*;
