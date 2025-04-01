@@ -2,25 +2,16 @@ package main.java.view;
 
 import main.java.game.Game;
 import main.java.model.IslandTile;
+import main.java.model.Player;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import java.util.Objects;
 
-/**
- * GameView 类：主界面窗口
- * 说明：
- * - 中间显示地图（由 Game 类 setup() 生成的 IslandMapPanel）
- * - 左侧显示玩家区域，每个玩家面板上方显示 "Player i"，下方横向排列的手牌占位区域（每个占位固定尺寸 64×94）
- * - 右侧显示一个垂直容器，包含原有的个人信息窗口（PlayerPanel）和水位计面板（水位计背景图片和指示箭头）
- * - 底部显示操作按钮面板（ActionPanel）
- * - 全局背景颜色统一在内容面板中设置为 new Color(45,53,60)
- */
 public class GameView extends JFrame {
     private IslandMapPanel islandMapPanel;
     private JPanel leftPlayersPanel;   // 左侧玩家区域
-    private PlayerPanel playerPanel;   // 个人信息窗口（原右侧）
+    private PlayerPanel playerPanel;   // 个人信息窗口（右侧）
     private JPanel rightPanel;         // 右侧容器，包含 playerPanel 和水位计面板
     private ActionPanel actionPanel;   // 底部操作按钮
     private Game game;                 // 游戏逻辑类实例
@@ -45,33 +36,36 @@ public class GameView extends JFrame {
         initGame();       // 初始化游戏逻辑
         initComponents(); // 初始化界面组件
 
+
+        // 将内容面板中的所有子组件设置为透明，使背景颜色得以显示
         setAllOpaqueFalse(getContentPane());
 
         setLocationRelativeTo(null); // 窗口居中显示
         setVisible(true);
     }
 
-    // 初始化游戏逻辑，生成随机地图瓦片
+    // 初始化游戏逻辑
     private void initGame() {
         game = new Game();
-        game.setup();  // 调用 setup() 生成随机地图瓦片
+        game.setup();
     }
 
     // 初始化各个界面组件
     private void initComponents() {
         // 中间：岛屿地图区域
         islandMapPanel = new IslandMapPanel();
-        List<IslandTile> tiles = game.getIslandTiles(); // 获取24张地图瓦片
-        islandMapPanel.setTiles(tiles); // 将瓦片传入地图面板
+        List<IslandTile> tiles = game.getIslandTiles();
+        islandMapPanel.setTiles(tiles);
         add(islandMapPanel, BorderLayout.CENTER);
+        List<Player> players = game.getPlayers();
+        islandMapPanel.setPlayers(players);
 
         // 左侧：玩家区域
         leftPlayersPanel = createLeftPlayersPanel();
         add(leftPlayersPanel, BorderLayout.WEST);
 
         // 右侧：创建垂直容器，将个人信息窗口与水位计面板组合
-        playerPanel = new PlayerPanel();
-        // 创建水位计面板
+        playerPanel = new PlayerPanel(game);
         JPanel floodMeterPanel = createFloodMeterPanel();
         rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
@@ -85,61 +79,13 @@ public class GameView extends JFrame {
         add(actionPanel, BorderLayout.SOUTH);
     }
 
-    /**
-     * createFloodMeterPanel(): 创建水位计面板
-     * 说明：
-     * - 使用 JLayeredPane 在水位计背景图片上叠加显示指示箭头图片
-     */
-    private JPanel createFloodMeterPanel() {
-        // 加载水位计背景图片
-        ImageIcon waterLevelIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/FloodMeter/WaterLevelMeter.jpg")));
-        // 缩小一倍
-        Image originalImage = waterLevelIcon.getImage();
-        int newWidth = waterLevelIcon.getIconWidth() / 2;
-        int newHeight = waterLevelIcon.getIconHeight() / 2;
-        Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
-        // 创建 JLayeredPane，大小与缩放后的背景图片一致
-        JLayeredPane layeredPane = new JLayeredPane();
-        Dimension meterSize = new Dimension(newWidth, newHeight);
-        layeredPane.setPreferredSize(meterSize);
-        layeredPane.setBounds(0, 0, meterSize.width, meterSize.height);
-
-        // 创建背景标签
-        JLabel backgroundLabel = new JLabel(scaledIcon);
-        backgroundLabel.setBounds(0, 0, meterSize.width, meterSize.height);
-        layeredPane.add(backgroundLabel, JLayeredPane.DEFAULT_LAYER);
-
-        // 加载箭头图片
-        ImageIcon arrowIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/FloodMeter/Water_Meter_Hand.png")));
-        // 如果需要缩放箭头，可以调用 getScaledInstance() 进行调整
-        JLabel arrowLabel = new JLabel(arrowIcon);
-        // 设置箭头初始位置，例如：放在背景图片上某个位置(此处示例 x=10, y= meterSize.height/2 - arrow高度/2)
-        int arrowX = 50;
-        int arrowY = 460 - game.getWaterLevel() * 58;
-        arrowLabel.setBounds(arrowX, arrowY, arrowIcon.getIconWidth(), arrowIcon.getIconHeight());
-        layeredPane.add(arrowLabel, JLayeredPane.PALETTE_LAYER);
-
-        // 将 JLayeredPane 放入一个面板中返回
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setOpaque(false);
-        panel.add(layeredPane, BorderLayout.CENTER);
-        return panel;
-    }
-
-    /**
-     * createLeftPlayersPanel(): 创建左侧玩家区域
-     * 每个玩家面板包含：
-     * - 上方显示 "Player i" 标签
-     * - 下方横向排列的 5 个手牌占位，固定尺寸为 64×94（宽×高）
-     */
+    // 创建左侧玩家区域（略）
     private JPanel createLeftPlayersPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // 假设共有 4 个玩家
         for (int i = 1; i <= 4; i++) {
             JLabel playerLabel = new JLabel("Player " + i, SwingConstants.CENTER);
             playerLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -182,7 +128,23 @@ public class GameView extends JFrame {
         return panel;
     }
 
-    // 递归设置容器中所有组件为透明，使其继承父容器的背景颜色
+    // 创建水位计面板（略）
+    private JPanel createFloodMeterPanel() {
+        JPanel floodMeterPanel = new JPanel();
+        floodMeterPanel.setOpaque(false);
+        ImageIcon waterLevelIcon = new ImageIcon(getClass().getResource("/images/FloodMeter/WaterLevelMeter.jpg"));
+        Image originalImage = waterLevelIcon.getImage();
+        int newWidth = waterLevelIcon.getIconWidth() / 2;
+        int newHeight = waterLevelIcon.getIconHeight() / 2;
+        Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+        JLabel waterLevelLabel = new JLabel(scaledIcon);
+        waterLevelLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        floodMeterPanel.add(waterLevelLabel);
+        return floodMeterPanel;
+    }
+
+    // 递归设置容器中所有组件为透明
     private void setAllOpaqueFalse(Container container) {
         for (Component comp : container.getComponents()) {
             if (comp instanceof JComponent) {
