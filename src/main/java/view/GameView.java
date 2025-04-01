@@ -6,20 +6,22 @@ import main.java.model.IslandTile;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * GameView 类：主界面窗口
  * 说明：
  * - 中间显示地图（由 Game 类 setup() 生成的 IslandMapPanel）
  * - 左侧显示玩家区域，每个玩家面板上方显示 "Player i"，下方横向排列的手牌占位区域（每个占位固定尺寸 64×94）
- * - 右侧保留原有的个人信息窗口（PlayerPanel）
+ * - 右侧显示一个垂直容器，包含原有的个人信息窗口（PlayerPanel）和水位计面板（水位计图片）
  * - 底部显示操作按钮面板（ActionPanel）
- * - 全局背景颜色统一设置为 new Color(45,53,60)，并通过递归设置所有子组件透明以显示该背景
+ * - 全局背景颜色统一在内容面板设置为 new Color(45,53,60)
  */
 public class GameView extends JFrame {
     private IslandMapPanel islandMapPanel;
     private JPanel leftPlayersPanel;   // 左侧玩家区域
-    private PlayerPanel playerPanel;   // 右侧个人信息窗口
+    private PlayerPanel playerPanel;   // 个人信息窗口（原右侧）
+    private JPanel rightPanel;         // 右侧容器，包含 playerPanel 和水位计面板
     private ActionPanel actionPanel;   // 底部操作按钮
     private Game game;                 // 游戏逻辑类实例
 
@@ -41,9 +43,8 @@ public class GameView extends JFrame {
         setLayout(new BorderLayout());
 
         initGame();       // 初始化游戏逻辑
-        initComponents(); // 初始化各个界面组件
+        initComponents(); // 初始化界面组件
 
-        // 将内容面板中的所有子组件设置为透明，使背景颜色得以显示
         setAllOpaqueFalse(getContentPane());
 
         setLocationRelativeTo(null); // 窗口居中显示
@@ -68,9 +69,27 @@ public class GameView extends JFrame {
         leftPlayersPanel = createLeftPlayersPanel();
         add(leftPlayersPanel, BorderLayout.WEST);
 
-        // 右侧：个人信息窗口
+        // 右侧：创建垂直容器，将原有的个人信息窗口与水位计面板组合
         playerPanel = new PlayerPanel();
-        add(playerPanel, BorderLayout.EAST);
+        JPanel floodMeterPanel = new JPanel();
+        floodMeterPanel.setOpaque(false);
+        // 加载水位计图片（确保资源路径正确，并将 src/main/resources 标记为资源根目录）
+        ImageIcon waterLevelIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/FloodMeter/WaterLevelMeter.jpg")));
+        Image originalImage = waterLevelIcon.getImage();
+        int newWidth = waterLevelIcon.getIconWidth() / 2;
+        int newHeight = waterLevelIcon.getIconHeight() / 2;
+        Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+        JLabel waterLevelLabel = new JLabel(scaledIcon);
+        waterLevelLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        floodMeterPanel.add(waterLevelLabel);
+        rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setOpaque(false);
+        rightPanel.add(playerPanel);
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        rightPanel.add(floodMeterPanel);
+        add(rightPanel, BorderLayout.EAST);
 
         // 底部：操作按钮面板
         actionPanel = new ActionPanel();
@@ -87,20 +106,18 @@ public class GameView extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        // 不再单独设置背景颜色，使用全局背景
+        // 默认继承全局背景颜色
 
         // 假设共有 4 个玩家
         for (int i = 1; i <= 4; i++) {
-            // 创建显示 "Player i" 的标签
             JLabel playerLabel = new JLabel("Player " + i, SwingConstants.CENTER);
             playerLabel.setFont(new Font("Arial", Font.BOLD, 16));
             playerLabel.setForeground(Color.WHITE);
             playerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            // 创建手牌占位区域，采用 BoxLayout 横向排列
             JPanel cardHolder = new JPanel();
             cardHolder.setLayout(new BoxLayout(cardHolder, BoxLayout.X_AXIS));
-            // 固定手牌占位区域尺寸：宽度 = 5*64 + 4*gap, 高度 = 94
+            // 固定手牌占位区域尺寸：宽度 = 5*64 + 4*5, 高度 = 94
             int gap = 5;
             int cardHolderWidth = 5 * 64 + 4 * gap;
             int cardHolderHeight = 94;
@@ -109,7 +126,6 @@ public class GameView extends JFrame {
             cardHolder.setMaximumSize(cardHolderDim);
             cardHolder.setMinimumSize(cardHolderDim);
 
-            // 依次添加 5 个卡牌占位组件，尺寸为 64×94
             for (int j = 0; j < 5; j++) {
                 JLabel placeholder = new JLabel();
                 Dimension cardDim = new Dimension(64, 94);
@@ -123,7 +139,6 @@ public class GameView extends JFrame {
                 }
             }
 
-            // 单个玩家面板，采用垂直 BoxLayout，将 "Player i" 标签放在上方，手牌占位区域放在下方
             JPanel singlePlayerPanel = new JPanel();
             singlePlayerPanel.setLayout(new BoxLayout(singlePlayerPanel, BoxLayout.Y_AXIS));
             singlePlayerPanel.setBorder(BorderFactory.createTitledBorder("Player " + i));
@@ -137,7 +152,7 @@ public class GameView extends JFrame {
         return panel;
     }
 
-    // 递归设置容器中所有组件为透明，使其继承父容器的背景颜色
+    // 递归设置容器中所有组件为透明，使其继承父容器背景颜色
     private void setAllOpaqueFalse(Container container) {
         for (Component comp : container.getComponents()) {
             if (comp instanceof JComponent) {

@@ -9,15 +9,17 @@ public class PlayerPanel extends JPanel {
     public PlayerPanel() {
         setPreferredSize(new Dimension(200, 600));
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
 
         playerInfoArea = new JTextArea();
         playerInfoArea.setEditable(false);
-        playerInfoArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        playerInfoArea.setFont(new Font("SansSerif", Font.PLAIN, 20));
         add(new JScrollPane(playerInfoArea), BorderLayout.CENTER);
 
         // 初始显示示例信息，后续可通过updatePlayerInfo方法更新
-        playerInfoArea.setText("玩家信息显示区域\n- 玩家1: Explorer\n- 玩家2: Pilot\n...");
+        playerInfoArea.setForeground(Color.WHITE);
+        playerInfoArea.setLineWrap(true);
+        playerInfoArea.setWrapStyleWord(true);
+        playerInfoArea.setText("XX's Round*****没写完 用updatePlayerInfo更新");
     }
 
     // 更新玩家信息的接口
