@@ -12,11 +12,13 @@ import java.util.List;
 public class Game {
     private List<Player> players;        // 玩家列表
     private List<IslandTile> islandTiles;  // 岛屿瓦片列表
+    private int waterLevel; // 当前水位
     // 其他属性，如 floodDeck、treasureDeck、waterLevel 等
 
     public Game() {
         players = new ArrayList<>();
         islandTiles = new ArrayList<>();
+        waterLevel = 1;
     }
 
     /**
@@ -26,6 +28,7 @@ public class Game {
         // 调用 MapLoader 随机加载24张地图图片
         List<ImageIcon> mapIcons = MapLoader.loadRandomMaps();
         islandTiles.clear();
+        waterLevel = 0;// 后续再改成根据难度调整水位
         // 假设岛屿瓦片总数为24
         for (int i = 0; i < 24; i++) {
             String tileName = "Island " + (i + 1); // 瓦片名称
@@ -37,6 +40,20 @@ public class Game {
         }
         // 其他初始化操作……
 
+    }
+    // 获取当前水位
+    public int getWaterLevel() {
+        return waterLevel;
+    }
+
+    // 设置水位（如果需要手动调整）
+    public void setWaterLevel(int level) {
+        this.waterLevel = level;
+    }
+
+    // 增加水位（例如抽取洪水卡后调用）
+    public void increaseWaterLevel() {
+        waterLevel++;
     }
 
     public List<IslandTile> getIslandTiles() {

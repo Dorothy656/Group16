@@ -38,7 +38,6 @@ public class TreasureCardLoader {
         for (String fileName : fileList) {
             // 构造资源路径，例如：/images/TreasureCards/Card_Earth_Stone.png
             String path = "/images/TreasureCards/" + fileName;
-            System.out.println("Loading treasure card: " + path);
             ImageIcon icon = new ImageIcon(TreasureCardLoader.class.getResource(path));
             treasureIcons.add(icon);
         }

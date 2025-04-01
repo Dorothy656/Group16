@@ -7,7 +7,7 @@ public class PlayerPanel extends JPanel {
     private JTextArea playerInfoArea;
 
     public PlayerPanel() {
-        setPreferredSize(new Dimension(200, 600));
+        setPreferredSize(new Dimension(200, 100));
         setLayout(new BorderLayout());
 
         playerInfoArea = new JTextArea();
