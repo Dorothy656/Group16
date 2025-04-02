@@ -14,13 +14,14 @@ public class GameView extends JFrame {
     private JPanel leftPlayersPanel;   // 左侧玩家区域
     private JPanel roundPanel;         // 右侧显示当前回合玩家的面板
     private JPanel rightPanel;         // 右侧容器，包含 roundPanel 和水位计面板
-    private ActionPanel actionPanel;   // 底部操作按钮
+    private JPanel bottomPanel;        // 底部新容器，包含三个栏位
+    private ActionPanel actionPanel;   // 原操作按钮面板
     private Game game;                 // 游戏逻辑类实例
 
     public GameView() {
         super("Forbidden Island");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1600, 900);
+        setSize(1400, 1000);
 
         // 使用自定义内容面板统一绘制背景颜色
         JPanel contentPane = new JPanel(new BorderLayout()) {
@@ -59,9 +60,11 @@ public class GameView extends JFrame {
         add(islandMapPanel, BorderLayout.CENTER);
         List<Player> players = game.getPlayers();
         islandMapPanel.setPlayers(players);
+        islandMapPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
 
         // 左侧：玩家区域
         leftPlayersPanel = createLeftPlayersPanel();
+        leftPlayersPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
         add(leftPlayersPanel, BorderLayout.WEST);
 
         // 右侧：创建垂直容器，将当前回合玩家信息与水位计面板组合
@@ -69,33 +72,49 @@ public class GameView extends JFrame {
         JPanel floodMeterPanel = createFloodMeterPanel();
         rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
         rightPanel.add(roundPanel);
         rightPanel.add(floodMeterPanel);
+        rightPanel.setPreferredSize(new Dimension(220, rightPanel.getPreferredSize().height));
         add(rightPanel, BorderLayout.EAST);
 
-        // 底部：操作按钮面板
+        // 底部：创建三个栏位的底部容器，用于添加元素
+        // 第1栏保留原来的 actionPanel，其它两栏预留后续使用
         actionPanel = new ActionPanel();
-        add(actionPanel, BorderLayout.SOUTH);
+        JPanel panel2 = new JPanel();
+        JPanel panel3 = new JPanel();
+        // 给每个底部子面板加上白色边框
+        actionPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        panel2.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        panel3.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        // 可设置底部容器固定高度，例如150像素
+        bottomPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+        bottomPanel.setPreferredSize(new Dimension(getWidth(), 200));
+        bottomPanel.add(actionPanel);
+        bottomPanel.add(panel2);
+        bottomPanel.add(panel3);
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
     /**
      * createRoundPanel(): 创建一个面板，用于显示当前回合玩家的信息，
-     * 格式为 "It's XXX's Round"。这里示例取第一个玩家的名称。
+     * 格式为 "It's XXX's Round"。这里示例取第一个玩家的角色名称。
      */
     private JPanel createRoundPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setPreferredSize(new Dimension(300, 200));
+        panel.setPreferredSize(new Dimension(300, 100));
         JLabel label;
         if (game.getPlayers() != null && !game.getPlayers().isEmpty()) {
-            // 示例：取第一个玩家作为当前回合玩家
-            String playerName = game.getPlayers().get(0).getRole();
-            label = new JLabel("<html>" + playerName + "'s<br> round</html>", SwingConstants.LEFT);
+            // 示例：取第一个玩家的角色名称作为当前回合标识
+            String roleName = game.getPlayers().get(0).getRole();
+            label = new JLabel("<html>" + roleName + "'s<br>Round</html>", SwingConstants.CENTER);
         } else {
             label = new JLabel("No player", SwingConstants.CENTER);
         }
         label.setFont(new Font("Arial", Font.BOLD, 36));
         label.setForeground(Color.WHITE);
         panel.add(label, BorderLayout.CENTER);
+        panel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
         return panel;
     }
 
@@ -103,7 +122,6 @@ public class GameView extends JFrame {
     private JPanel createLeftPlayersPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         for (int i = 0; i <= 3; i++) {
             Player player = game.getPlayers().get(i);
@@ -115,7 +133,8 @@ public class GameView extends JFrame {
             int newHeight = roleIcon.getIconHeight() / 5 * 2;
             Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
             ImageIcon scaledIcon = new ImageIcon(scaledImage);
-            JLabel playerLabel = new JLabel(roleName, scaledIcon, JLabel.LEFT);
+            String playerName = player.getName();
+            JLabel playerLabel = new JLabel(playerName, scaledIcon, JLabel.LEFT);
             playerLabel.setFont(new Font("Arial", Font.BOLD, 16));
             playerLabel.setForeground(Color.WHITE);
             playerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -124,7 +143,7 @@ public class GameView extends JFrame {
             cardHolder.setLayout(new BoxLayout(cardHolder, BoxLayout.X_AXIS));
             int gap = 10;
             int cardHolderWidth = 5 * 64 + 4 * gap;
-            int cardHolderHeight = 80;
+            int cardHolderHeight = 90;
             Dimension cardHolderDim = new Dimension(cardHolderWidth, cardHolderHeight);
             cardHolder.setPreferredSize(cardHolderDim);
             cardHolder.setMaximumSize(cardHolderDim);
@@ -158,38 +177,31 @@ public class GameView extends JFrame {
 
     // 创建水位计面板
     private JPanel createFloodMeterPanel() {
-        // 加载水位计背景图片
         ImageIcon waterLevelIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/FloodMeter/WaterLevelMeter.jpg")));
-        // 缩小一倍
         Image originalImage = waterLevelIcon.getImage();
         int newWidth = waterLevelIcon.getIconWidth() / 2;
         int newHeight = waterLevelIcon.getIconHeight() / 2;
         Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
-        // 创建 JLayeredPane，大小与缩放后的背景图片一致
         JLayeredPane layeredPane = new JLayeredPane();
         Dimension meterSize = new Dimension(newWidth, newHeight);
         layeredPane.setPreferredSize(meterSize);
         layeredPane.setBounds(0, 0, meterSize.width, meterSize.height);
 
-        // 创建背景标签
         JLabel backgroundLabel = new JLabel(scaledIcon);
         backgroundLabel.setBounds(0, 0, meterSize.width, meterSize.height);
         layeredPane.add(backgroundLabel, JLayeredPane.DEFAULT_LAYER);
 
-        // 加载箭头图片
         ImageIcon arrowIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/FloodMeter/Water_Meter_Hand.png")));
-        // 如果需要缩放箭头，可以调用 getScaledInstance() 进行调整
         JLabel arrowLabel = new JLabel(arrowIcon);
-        // 设置箭头初始位置，例如：放在背景图片上某个位置(此处示例 x=50, y=460 - game.getWaterLevel()*58)
         int arrowX = 50;
         int arrowY = 460 - game.getWaterLevel() * 58;
         arrowLabel.setBounds(arrowX, arrowY, arrowIcon.getIconWidth(), arrowIcon.getIconHeight());
         layeredPane.add(arrowLabel, JLayeredPane.PALETTE_LAYER);
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
         panel.add(layeredPane, BorderLayout.CENTER);
         return panel;
     }
