@@ -36,7 +36,6 @@ public class MapLoader {
         for (int i = 0; i < 24; i++) {
             // 构造资源路径，例如：/images/maps/map1.jpg
             String path = "/images/Tiles/" + fileList.get(i);
-            System.out.println(path);
             ImageIcon icon = new ImageIcon(MapLoader.class.getResource(path));
             mapIcons.add(icon);
         }

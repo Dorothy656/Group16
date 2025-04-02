@@ -32,7 +32,6 @@ public class Role {
     }
 
     public ImageIcon getNormalIcon() {
-        System.out.println("Loading icon from path: " + normalIconPath);
         return new ImageIcon(Objects.requireNonNull(getClass().getResource(normalIconPath)));
     }
 

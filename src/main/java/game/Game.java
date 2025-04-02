@@ -70,7 +70,6 @@ public class Game {
                 "/images/Icons/Diver_Adventurer_Icon_give@2x.png",
                 "/images/Icons/Diver_Adventurer_Icon_move@2x.png",
                 "/images/Icons/Diver_Adventurer_IconSelect@2x.png"));
-        // TODO: 添加其他5个角色（示例角色名称及图标路径需根据实际情况填写）
         availableRoles.add(new Role("Engineer", "/images/Icons/Engineer_Adventurer_Icon@2x.png",
                 "/images/Icons/Engineer_Adventurer_Icon_active@2x.png",
                 "/images/Icons/Engineer_Adventurer_Icon_give@2x.png",
@@ -96,17 +95,21 @@ public class Game {
                 "/images/Icons/Messenger_Adventurer_Icon_give@2x.png",
                 "/images/Icons/Messenger_Adventurer_Icon_move@2x.png",
                 "/images/Icons/Messenger_Adventurer_IconSelect@2x.png"));
-
         // 随机抽取 4 个角色
         Collections.shuffle(availableRoles);
         List<Role> selectedRoles = availableRoles.subList(0, 4);
         // 指定玩家起始位置，示例：0, 6, 12, 18
-        int[] startingIndices = {0, 6, 12, 18};
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < islandTiles.size(); i++) {
+            indices.add(i);
+        }
+        Collections.shuffle(indices); // 随机打乱岛屿索引
         for (int i = 0; i < 4; i++) {
-            Player player = new Player("Player " + (i + 1), selectedRoles.get(i), islandTiles.get(startingIndices[i]));
+            int startIndex = indices.get(i);
+            Player player = new Player("Player " + (i + 1), selectedRoles.get(i), islandTiles.get(startIndex));
             players.add(player);
         }
-        // 输出初始位置和角色，便于调试
+        // 输出初始位置和角色
         for (Player p : players) {
             System.out.println(p.getName() + " (" + p.getRole() + ") starts at " + p.getPawn().getName());
         }
@@ -126,22 +129,23 @@ public class Game {
             treasureDeck.addCard(treasureCard);
         }
         treasureDeck.shuffle();
-        drawInitialCards();
+        for (Player player : players) {
+            drawInitialCards(player);
+        }
     }
 
     /**
      * drawInitialCards() 方法：为每个玩家抽取 2 张宝藏卡牌
      */
-    private void drawInitialCards() {
-        for (Player player : players) {
-            for (int i = 0; i < 2; i++) {
-                Card card = treasureDeck.draw();
-                if (card != null) {
-                    player.addCard(card);
-                }
+    private void drawInitialCards(Player player) {
+        for (int i = 0; i < 2; i++) {
+            Card card = treasureDeck.draw();
+            if (card != null) {
+                player.addCard(card);
             }
         }
     }
+
 
     /**
      * movePlayer() 方法：为指定玩家移动到目标岛屿

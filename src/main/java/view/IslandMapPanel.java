@@ -69,14 +69,10 @@ public class IslandMapPanel extends JPanel {
             }
         }
 
-        // 绘制玩家图标：将图标绘制在玩家所在瓦片的中心
-        System.out.println("Drawing players...");
-        System.out.println("Players: " + players + ", Tiles: " + tiles);
         if (players != null && tiles != null) {
             for (Player player : players) {
                 // 获取玩家所在瓦片在 tiles 列表中的索引
                 int index = tiles.indexOf(player.getPawn());
-                System.out.println("Player " + player.getName() + " is at tile " + index);
                 if (index >= 0) {
                     // 根据 index 计算该瓦片的行、列以及绘制坐标
                     int row = 0;
@@ -96,8 +92,8 @@ public class IslandMapPanel extends JPanel {
                     }
                     // 获取玩家角色图标（使用 normal 状态图标），这里对图标进行缩放（示例缩小四分之一）
                     ImageIcon icon = player.getRoleObj().getNormalIcon();
-                    int iconWidth = icon.getIconWidth() / 4;
-                    int iconHeight = icon.getIconHeight() / 4;
+                    int iconWidth = icon.getIconWidth() / 2 - 10;
+                    int iconHeight = icon.getIconHeight() / 2 - 10;
                     int drawX = tileX + (tileSize - iconWidth) / 2;
                     int drawY = tileY + (tileSize - iconHeight) / 2;
                     g.drawImage(icon.getImage(), drawX, drawY, iconWidth, iconHeight, this);
