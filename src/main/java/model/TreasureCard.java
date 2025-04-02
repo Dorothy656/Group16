@@ -16,8 +16,29 @@ public class TreasureCard extends Card {
      */
     public TreasureCard(ImageIcon image) {
         super(image);
-        // TODO: 根据 image 或其他参数确定具体宝藏类型
-        this.treasureType = "Default Treasure";
+        // 尝试从 ImageIcon 的描述信息中获取文件名，并根据关键字确定宝藏类型
+        String desc = image.getDescription();
+        if (desc != null) {
+            if (desc.contains("Crystal_of_Fire")) {
+                this.treasureType = "Crystal of Fire";
+            } else if (desc.contains("Earth_Stone")) {
+                this.treasureType = "Earth Stone";
+            } else if (desc.contains("Card_Oceans_Chalice")) {
+                this.treasureType = "Ocean's Chalice";
+            } else if (desc.contains("Statue_of_the_Wind")) {
+                this.treasureType = "Statue of the Wind";
+            } else if (desc.contains("Helicopter")) {
+                this.treasureType = "Helicopter";
+            } else if (desc.contains("Sand_Bag")) {
+                this.treasureType = "Sand Bag";
+            } else if (desc.contains("Waters_Rise")) {
+                this.treasureType = "Waters Rise";
+            } else {
+                System.out.println("Unknown treasure type: " + desc);
+            }
+        } else {
+            this.treasureType = "Default Treasure";
+        }
     }
 
     @Override

@@ -59,7 +59,7 @@ public class Game {
 
     /**
      * initPlayers() 方法：初始化玩家列表
-     * 示例中从 6 个角色中随机抽取 4 个角色，并分别设置起始位置为 islandTiles 中下标为 0、6、12、18 的岛屿
+     * 示例中从 6 个角色中随机抽取 4 个角色
      */
     private void initPlayers() {
         players.clear();
@@ -98,7 +98,6 @@ public class Game {
         // 随机抽取 4 个角色
         Collections.shuffle(availableRoles);
         List<Role> selectedRoles = availableRoles.subList(0, 4);
-        // 指定玩家起始位置，示例：0, 6, 12, 18
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < islandTiles.size(); i++) {
             indices.add(i);
@@ -131,6 +130,12 @@ public class Game {
         treasureDeck.shuffle();
         for (Player player : players) {
             drawInitialCards(player);
+        }
+        for (Player player : players) {
+            System.out.println(player.getName() + " 的手牌：");
+            for (Card card : player.getHand()) {
+                System.out.println("   " + card.toString());
+            }
         }
     }
 

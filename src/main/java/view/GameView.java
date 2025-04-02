@@ -1,6 +1,7 @@
 package main.java.view;
 
 import main.java.game.Game;
+import main.java.model.Card;
 import main.java.model.IslandTile;
 import main.java.model.Player;
 
@@ -122,6 +123,8 @@ public class GameView extends JFrame {
     private JPanel createLeftPlayersPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        int gap = 10;
 
         for (int i = 0; i <= 3; i++) {
             Player player = game.getPlayers().get(i);
@@ -141,7 +144,6 @@ public class GameView extends JFrame {
 
             JPanel cardHolder = new JPanel();
             cardHolder.setLayout(new BoxLayout(cardHolder, BoxLayout.X_AXIS));
-            int gap = 10;
             int cardHolderWidth = 5 * 64 + 4 * gap;
             int cardHolderHeight = 90;
             Dimension cardHolderDim = new Dimension(cardHolderWidth, cardHolderHeight);
@@ -149,6 +151,8 @@ public class GameView extends JFrame {
             cardHolder.setMaximumSize(cardHolderDim);
             cardHolder.setMinimumSize(cardHolderDim);
 
+            // 遍历当前玩家手牌，如果有卡牌则显示，否则空白
+            List<Card> hand = player.getHand();
             for (int j = 0; j < 5; j++) {
                 JLabel placeholder = new JLabel();
                 Dimension cardDim = new Dimension(64, 94);
@@ -156,6 +160,15 @@ public class GameView extends JFrame {
                 placeholder.setMaximumSize(cardDim);
                 placeholder.setMinimumSize(cardDim);
                 placeholder.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+                if (j < hand.size()) {
+                    ImageIcon originalIcon = hand.get(j).getImageIcon();
+                    int scaledWidth = originalIcon.getIconWidth() / 2;
+                    int scaledHeight = originalIcon.getIconHeight() / 2;
+                    Image scaledCard = originalIcon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+                    placeholder.setIcon(new ImageIcon(scaledCard));
+                    placeholder.setHorizontalAlignment(SwingConstants.CENTER); // 居中对齐
+                }
+
                 cardHolder.add(placeholder);
                 if (j < 4) {
                     cardHolder.add(Box.createRigidArea(new Dimension(gap, 0)));
@@ -174,6 +187,7 @@ public class GameView extends JFrame {
         }
         return panel;
     }
+
 
     // 创建水位计面板
     private JPanel createFloodMeterPanel() {
