@@ -8,21 +8,18 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * IslandMapPanel 类：用于显示岛屿地图和玩家位置
- * 说明：
- * - 通过 setTiles() 设置 24 张岛屿瓦片，并在 paintComponent 中绘制
- * - 通过 setPlayers() 设置玩家列表，在地图上对应瓦片上绘制玩家的图标
- * - 此处采用简单的行列布局：瓦片分布为 6 行，瓦片数分别为 {2,4,6,6,4,2}，并根据该布局计算每个瓦片的绘制坐标
- */
 public class IslandMapPanel extends JPanel {
     private List<IslandTile> tiles;
     private List<Player> players;
-    private int tileSize = 90; // 每个瓦片 90*90 像素
-    private int gap = 12;      // 每个瓦片之间间隔 12 像素
+    private int tileSize = 90; // 每个瓦片90*90像素
+    private int gap = 12;      // 间隔12像素
+    // 假设瓦片布局：6行，瓦片数分别为{2,4,6,6,4,2}
 
-    // 每行瓦片数配置
-    private int[] tilesPerRow = {2, 4, 6, 6, 4, 2};
+    // 模拟宝藏状态，未来可由游戏逻辑动态更新
+    private boolean earthStoneCaptured = false;
+    private boolean oceanChaliceCaptured = false;
+    private boolean crystalFireCaptured = false;
+    private boolean statueWindCaptured = false;
 
     public void setTiles(List<IslandTile> tiles) {
         this.tiles = tiles;
@@ -41,6 +38,7 @@ public class IslandMapPanel extends JPanel {
 
         int panelWidth = getWidth();
         int panelHeight = getHeight();
+        int[] tilesPerRow = {2, 4, 6, 6, 4, 2};
         int numRows = tilesPerRow.length;
         int totalDrawingHeight = numRows * tileSize + (numRows - 1) * gap;
         int startY = (panelHeight - totalDrawingHeight) / 2;
@@ -63,12 +61,13 @@ public class IslandMapPanel extends JPanel {
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(x, y, tileSize, tileSize);
                 }
-                // 可以绘制边框（如需要）
+                // 可以绘制边框
                 g.setColor(Color.BLACK);
                 g.drawRect(x, y, tileSize, tileSize);
             }
         }
 
+        // 绘制玩家图标，计算玩家所在瓦片的中心位置
         if (players != null && tiles != null) {
             for (Player player : players) {
                 // 获取玩家所在瓦片在 tiles 列表中的索引
@@ -100,5 +99,35 @@ public class IslandMapPanel extends JPanel {
                 }
             }
         }
+
+        // 绘制四个宝藏图标，若宝藏被取走则显示 captured 图标
+        String earthStonePath = earthStoneCaptured ? "/images/Icons/Treasure_Icon_Earth_Stone_captured@2x.png"
+                : "/images/Icons/Treasure_Icon_Earth_Stone@2x.png";
+        String oceanChalicePath = oceanChaliceCaptured ? "/images/Icons/Treasure_Icon_Ocean_s_Chalice_captured@2x.png"
+                : "/images/Icons/Treasure_Icon_Ocean_s_Chalice@2x.png";
+        String crystalFirePath = crystalFireCaptured ? "/images/Icons/Treasure_Icon_Crystal_of_Fire_captured@2x.png"
+                : "/images/Icons/Treasure_Icon_Crystal_of_Fire@2x.png";
+        String statueWindPath = statueWindCaptured ? "/images/Icons/Treasure_Icon_Statue_of_the_Wind_captured@2x.png"
+                : "/images/Icons/Treasure_Icon_Statue_of_the_Wind@2x.png";
+
+        ImageIcon earthStoneIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource(earthStonePath)));
+        ImageIcon oceanChaliceIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource(oceanChalicePath)));
+        ImageIcon crystalFireIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource(crystalFirePath)));
+        ImageIcon statueWindIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource(statueWindPath)));
+
+        int w1 = earthStoneIcon.getIconWidth(), h1 = earthStoneIcon.getIconHeight();
+        int w2 = oceanChaliceIcon.getIconWidth(), h2 = oceanChaliceIcon.getIconHeight();
+        int w3 = crystalFireIcon.getIconWidth(), h3 = crystalFireIcon.getIconHeight();
+        int w4 = statueWindIcon.getIconWidth(), h4 = statueWindIcon.getIconHeight();
+
+        // 绘制宝藏图标在四个角落
+        // 左上角：Earth Stone
+        g.drawImage(earthStoneIcon.getImage(), 0, 0, w1, h1, this);
+        // 右上角：Ocean's Chalice
+        g.drawImage(oceanChaliceIcon.getImage(), getWidth() - w2, 0, w2, h2, this);
+        // 左下角：Crystal of Fire
+        g.drawImage(crystalFireIcon.getImage(), 0, getHeight() - h3, w3, h3, this);
+        // 右下角：Statue of the Wind
+        g.drawImage(statueWindIcon.getImage(), getWidth() - w4, getHeight() - h4, w4, h4, this);
     }
 }
